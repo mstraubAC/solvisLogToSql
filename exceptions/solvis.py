@@ -1,0 +1,3 @@
+class SolvisInconsistentCsvError(Exception):
+    pass
+
