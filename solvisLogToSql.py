@@ -3,6 +3,9 @@ import click
 import logging
 import json
 from model.configuration import Configuration
+from accessors.postgresDatabaseAccessor import PostgresDatabaseAccessor
+from accessors.solvisAccessor import SolvisAccessor
+from businesslogic.pushNewSolvisLogsToDatabase import PushNewSolvisLogsToDatabase
 
 __version="0.2"
 __name="solvisLogToSql"
@@ -38,6 +41,10 @@ def main(config, verbosity):
         config = Configuration.fromJson(**json.load(configFile))
         dumpConfigurationToLog(config)
 
+    solvis = SolvisAccessor(config.solvis)
+    with PostgresDatabaseAccessor(config.sql) as db:
+        businessLogic = PushNewSolvisLogsToDatabase(db, solvis)
+        businessLogic.sync()
 
 if __name__ == "__main__":
     main()
