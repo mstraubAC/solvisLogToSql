@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import logging
+import datetime
 
 class DatabaseAccessor(ABC):
     @abstractmethod
@@ -24,6 +25,6 @@ class DatabaseAccessor(ABC):
         pass
 
     @abstractmethod
-    def getLastDeviceTimestamp(self):
+    def getLastDeviceTimestamp(self) -> datetime.datetime:
         pass
     

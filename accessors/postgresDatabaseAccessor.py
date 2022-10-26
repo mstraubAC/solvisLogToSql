@@ -4,6 +4,7 @@ sys.path.append('..')
 from model.configuration import SqlConfiguration
 import psycopg2
 import logging
+import datetime
 
 class PostgresDatabaseAccessor(DatabaseAccessor):
     # Class infrastructure
@@ -51,7 +52,7 @@ class PostgresDatabaseAccessor(DatabaseAccessor):
         )
         self._connection.commit()
 
-    def getLastDeviceTimestamp(self):
+    def getLastDeviceTimestamp(self) -> datetime.datetime:
         logging.debug("SELECT * FROM \"data\".\"fnGetLatestMeasurementOfDevice\"('{}');'".format(self._config.deviceName))
         self._cursor.execute(
             "SELECT * FROM \"data\".\"fnGetLatestMeasurementOfDevice\"(%s);"
