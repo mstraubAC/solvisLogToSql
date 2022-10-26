@@ -31,7 +31,7 @@ def dumpConfigurationToLog(config: Configuration):
 
 @click.command()
 @click.option('--config', default="solvisLogToSql.conf.json", help="Path to configuration file containing secrets for connecting to Solvis and SQL server")
-@click.option('--verbosity', type=int, default=3, help="0: error, 1: warning, 2: info, 3: debug")
+@click.option('--verbosity', type=int, default=2, help="0: error, 1: warning, 2: info, 3: debug")
 def main(config, verbosity):
     setupLogging(verbosity)
 
