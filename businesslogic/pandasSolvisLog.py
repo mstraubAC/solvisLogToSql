@@ -66,7 +66,7 @@ class PandasSolvisLog:
             'HD': 'heatpumpHighPressure'
         }
 
-    def __renameDictKeys(self, d, keymap):
+    def __renameDictKeys(self, oldDict: dict, keymap: dict) -> dict:
         """
         :param d: old dict
         :type d: dict
@@ -74,13 +74,13 @@ class PandasSolvisLog:
         :returns: new dict
         :rtype: dict
         """
-        new_dict = {}
-        for key, value in zip(d.keys(), d.values()):
-            new_key = keymap.get(key, key)
-            new_dict[new_key] = d[key]
-        return new_dict
+        newDict = {}
+        for key, value in zip(oldDict.keys(), oldDict.values()):
+            newKey = keymap.get(key, key)
+            newDict[newKey] = oldDict[key]
+        return newDict
 
-    def __getMinMaxNumberOfColumnsOfCsv(self, inputData: IOBase, skiprows: int =0, sep: str =','):
+    def __getMinMaxNumberOfColumnsOfCsv(self, inputData: IOBase, skiprows: int =0, sep: str =',') -> tuple[int, int, list[str]]:
         csvFile = csv.reader(inputData, delimiter=sep)
         for i in range(skiprows):
             next(csvFile)
@@ -117,13 +117,13 @@ class PandasSolvisLog:
         if inputData.seekable():
             inputData.seek(0)
     
-    def __createRawDataFrame(self, inputData: IOBase):
+    def __createRawDataFrame(self, inputData: IOBase) -> pd.DataFrame:
         dfLog = pd.read_csv(inputData, sep='\t', skiprows=4, encoding=self._dataEncoding, header=[0])
         dfHeaders = dfLog.iloc[:1]
         dfLog = dfLog.iloc[1:]
         return dfLog, dfHeaders
 
-    def __applyDataScaling(self, dfLog, dfHeaders) -> dict[str, str]:
+    def __applyDataScaling(self, dfLog: pd.DataFrame, dfHeaders: pd.DataFrame) -> dict[str, str]:
         """ convert numeric columns and scale them """
         colUnits = {}
         for colName in dfHeaders.columns:
@@ -147,13 +147,13 @@ class PandasSolvisLog:
 
         return colUnits
 
-    def __mergeDateTimeColumnsIntoSingleColumn(self, dfLog, dfHeaders):
+    def __mergeDateTimeColumnsIntoSingleColumn(self, dfLog: pd.DataFrame, dfHeaders: pd.DataFrame):
         dfLog['DateTime'] = pd.to_datetime(dfLog['Datum'].astype(str) + ' ' + dfLog['Zeit'].astype(str), format='%d.%m.%y %H:%M:%S', errors='coerce')
         dfLog.drop(labels=['Datum', 'Zeit'], axis=1, inplace=True)
         dfHeaders.drop(labels=['Datum', 'Zeit'], axis=1, inplace=True)
         dfLog['DateTime'] = (dfLog['DateTime'] - pd.Timestamp("1970-01-01")) // pd.Timedelta('1s')
 
-    def __calculateElectricalHeatingPower(self, dfLog, colUnits):
+    def __calculateElectricalHeatingPower(self, dfLog: pd.DataFrame, colUnits: pd.DataFrame):
         # calculate electrical heating power
         dfLog['heatpumpResistanceHeatingLevel'] = (dfLog['heatpumpResistanceHeating1'] * 1. + dfLog['heatpumpResistanceHeating2'] * 2.) / 100
         dfLog['heatpumpResistanceHeatingPower'] = dfLog['heatpumpResistanceHeatingLevel'] * self._electricHeatingRodTotalPower / self._electricHeatingRodPowerSteps

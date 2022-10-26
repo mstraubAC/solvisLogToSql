@@ -36,7 +36,7 @@ class SolvisAccessor():
             currentFile = self._getLogfile(fileToFetch)
             self.__storeFileToCache(fileToFetch, currentFile)
 
-    def getMaxEndDateOfLogFile(self, fileName):
+    def getMaxEndDateOfLogFile(self, fileName: str) -> datetime:
         logDateRaw = re.findall(r'mi(\d{2})(\d{2})(\d{2})', fileName)
         if len(logDateRaw) == 0:
             raise Exception("Could not parse timerange of input file '{}'".format(fileName))
