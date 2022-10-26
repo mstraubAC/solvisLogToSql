@@ -4,6 +4,14 @@ import datetime
 
 class DatabaseAccessor(ABC):
     @abstractmethod
+    def __init__(self, logger):
+        self._logger = logger
+
+    @property
+    def _log(self):
+        return self._logger
+
+    @abstractmethod
     def open(self):
         pass
 
@@ -12,12 +20,12 @@ class DatabaseAccessor(ABC):
         pass
 
     def __enter__(self):
-        logging.debug("Executing DatabaseAccessor::__enter__()")
+        self._log.debug("Executing DatabaseAccessor::__enter__()")
         self.open()
         return self
 
     def __exit__(self, type, value, traceback):
-        logging.debug("Executing DatabaseAccessor::__exit__()")
+        self._log.debug("Executing DatabaseAccessor::__exit__()")
         self.close()
 
     @abstractmethod
