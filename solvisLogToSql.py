@@ -13,7 +13,7 @@ __name="solvisLogToSql"
 def setupLogging(verbosity):
     # format
     loggerParameters = {
-        'format': '[%(asctime)s] [%(levelname)s] [%(name)s] (%(module)s %(funcName)s lno %(lineno)d): %(message)s'
+        'format': '[%(asctime)s] [%(levelname)s] [%(name)s] (%(module)s %(funcName)s @ line %(lineno)d): %(message)s'
     }
 
     # set log level
