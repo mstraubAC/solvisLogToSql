@@ -6,13 +6,12 @@ from io import IOBase
 import sys
 sys.path.append('..')
 from exceptions.solvis import SolvisInconsistentCsvError
+from model.configuration import PandasSolvisLogConverterConfiguration
 
-class PandasSolvisLog:
-    def __init__(self, inputData: IOBase):
-        self._electricHeatingRodTotalPower = 8.8
-        self._electricHeatingRodPowerSteps = 3
-        self._dataEncoding = 'ISO-8859-1'
+class SolvisLogDataFrame:
+    def __init__(self, inputData: IOBase, config: PandasSolvisLogConverterConfiguration):
         self._log = logging.getLogger(self.__class__.__name__)
+        self._config = config
         self.df = None
         self.columnUnits = {}
 
@@ -24,47 +23,7 @@ class PandasSolvisLog:
         self.__processCsvToPandasDataFrame(inputData)
 
     def __columnNameMapping(self) -> dict[str, str]:
-        return {
-            'S1': 'heatStoreTemperatureTop',
-            'S2': 'warmWaterTemperature',
-            'S3': 'heatStoreTemperatureBottomReference',
-            'S4': 'heatStoreTemperatureHeatingTop',
-            'S9': 'heatStoreTemperatureHeatingBottom',
-            'S10': 'outsideTemperature',
-    #        'S11': 'circulation',
-            'S12': 'flowTemperatureCircuit1',
-    #        'S13': 'flowTemperatureCircuit2',
-            'S14': 'flowTemperatureCircuitHeatpump',
-            'S15': 'coldWaterTemperature',
-    #        'S16': 'flowTemperatureCircuit3',
-            'S18': 'warmWaterThroughput',
-            'I1': 'SmartGrid',
-            'A3': 'heatingPumpCircuit1',
-    #        'A4': 'heatingPumpCircuit2',
-    #        'A5': 'heatingPumpCircuit3',
-    #        'A6': 'mixerOpenCircuit3',
-    #        'A7': 'mixerClosedCircuit3',
-    #        'A8': 'mixerOpenCircuit1',
-    #        'A9': 'mixerClosedCircuit1',
-    #        'A10': 'mixerOpenCircuit2',
-    #        'A11': 'mixerClosedCircuit2',
-            'A12': 'heatpumpResistanceHeating1',
-            'A13': 'heatpumpResistanceHeating2',
-            'A14': 'heatpumpThreeWayOutlet',
-            'O1': 'heatpumpUnused',
-            'WP Leist': 'heatpumpThermalPower',
-            'WP Pel': 'heatpumpElectricPower',
-            'SmartGrid': 'smartGridState',
-            'AnfHK1': 'targetTemperatureCircuit1',
-    #        'AnfHK2': 'targetTemperatureCircuit2',
-    #        'AnfHK3': 'targetTemperatureCircuit3',
-            'Vdrz': 'compressorSpeed',
-            'WPVL': 'heatpumpFlow',
-            'WPRL': 'heatpumpReverse',
-            'VAtemp': 'compressourOutsideTemperature',
-            'ND': 'heatpumpLowPressure',
-            'HD': 'heatpumpHighPressure'
-        }
+        return self._config.columnNameMapping
 
     def __renameDictKeys(self, oldDict: dict, keymap: dict) -> dict:
         """
@@ -118,7 +77,7 @@ class PandasSolvisLog:
             inputData.seek(0)
     
     def __createRawDataFrame(self, inputData: IOBase) -> pd.DataFrame:
-        dfLog = pd.read_csv(inputData, sep='\t', skiprows=4, encoding=self._dataEncoding, header=[0])
+        dfLog = pd.read_csv(inputData, sep='\t', skiprows=4, encoding=self._config.dataEncoding, header=[0])
         dfHeaders = dfLog.iloc[:1]
         dfLog = dfLog.iloc[1:]
         return dfLog, dfHeaders
@@ -156,7 +115,7 @@ class PandasSolvisLog:
     def __calculateElectricalHeatingPower(self, dfLog: pd.DataFrame, colUnits: pd.DataFrame):
         # calculate electrical heating power
         dfLog['heatpumpResistanceHeatingLevel'] = (dfLog['heatpumpResistanceHeating1'] * 1. + dfLog['heatpumpResistanceHeating2'] * 2.) / 100
-        dfLog['heatpumpResistanceHeatingPower'] = dfLog['heatpumpResistanceHeatingLevel'] * self._electricHeatingRodTotalPower / self._electricHeatingRodPowerSteps
+        dfLog['heatpumpResistanceHeatingPower'] = dfLog['heatpumpResistanceHeatingLevel'] * self._config.electricHeatingRodTotalPower / self._config.electricHeatingRodPowerSteps
         colUnits['heatpumpResistanceHeatingPower'] = 'kW'
         
         colDrops = [
@@ -199,3 +158,10 @@ class PandasSolvisLog:
         # initialize class members
         self.df = dfLogTarget
         self.columnUnits = colUnitsTarget
+
+class PandasSolvisLog:
+    def __init__(self, config: PandasSolvisLogConverterConfiguration) -> None:
+        self._config = config
+
+    def convert(self, inputData: IOBase) -> SolvisLogDataFrame:
+        return SolvisLogDataFrame(inputData, self._config)

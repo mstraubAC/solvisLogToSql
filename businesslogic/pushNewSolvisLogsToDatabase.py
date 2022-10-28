@@ -8,9 +8,10 @@ from .pandasSolvisLog import PandasSolvisLog
 from exceptions.solvis import SolvisInconsistentCsvError
 
 class PushNewSolvisLogsToDatabase:
-    def __init__(self, databaseAccessor: DatabaseAccessor, solvisAccessor: SolvisAccessor):
+    def __init__(self, databaseAccessor: DatabaseAccessor, solvisAccessor: SolvisAccessor, solvisLogToPandasConverterFactory: PandasSolvisLog):
         self._db = databaseAccessor
         self._solvis = solvisAccessor
+        self._solvisLogToPandasConverterFactory = solvisLogToPandasConverterFactory
         self._log = logging.getLogger(self.__class__.__name__)
         self._numberDataRowsProcessed = 0
         self._numberDataRowsStoredToDatabase = 0
@@ -32,7 +33,7 @@ class PushNewSolvisLogsToDatabase:
 
             self._log.info("Importing {}".format(fileName))
             try:
-                solvisLogData = PandasSolvisLog(self._solvis.getLogfile(fileName))
+                solvisLogData = self._solvisLogToPandasConverterFactory.convert(self._solvis.getLogfile(fileName))
                 self.__saveDataFrameToDatabase(solvisLogData.df, latestMeasurementOnDb)
             except SolvisInconsistentCsvError:
                 self._log.warning("Skipping {} because of inconsistent data: Number of columns vary without valid data description.".format(fileName))

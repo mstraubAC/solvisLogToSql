@@ -34,6 +34,39 @@ After cloning this repository, you must create a json configuration file that de
                 "pass": "another-secure-password",
                 "database": "smarthome",
                 "dbDeviceName": "Solvis Lea 11kW"
+        },
+	"pandasSolvisLogConverter": {
+                "electricHeatingRodTotalPower": 8.8,
+                "electricHeatingRodPowerSteps": 3,
+                "dataEncoding": "ISO-8859-1",
+                "columnNameMapping": {
+                        "S1": "heatStoreTemperatureTop",
+                        "S2": "warmWaterTemperature",
+                        "S3": "heatStoreTemperatureBottomReference",
+                        "S4": "heatStoreTemperatureHeatingTop",
+                        "S9": "heatStoreTemperatureHeatingBottom",
+                        "S10": "outsideTemperature",
+                        "S12": "flowTemperatureCircuit1",
+                        "S14": "flowTemperatureCircuitHeatpump",
+                        "S15": "coldWaterTemperature",
+                        "S18": "warmWaterThroughput",
+                        "I1": "SmartGrid",
+                        "A3": "heatingPumpCircuit1",
+                        "A12": "heatpumpResistanceHeating1",
+                        "A13": "heatpumpResistanceHeating2",
+                        "A14": "heatpumpThreeWayOutlet",
+                        "O1": "heatpumpUnused",
+                        "WP Leist": "heatpumpThermalPower",
+                        "WP Pel": "heatpumpElectricPower",
+                        "SmartGrid": "smartGridState",
+                        "AnfHK1": "targetTemperatureCircuit1",
+                        "Vdrz": "compressorSpeed",
+                        "WPVL": "heatpumpFlow",
+                        "WPRL": "heatpumpReverse",
+                        "VAtemp": "compressourOutsideTemperature",
+                        "ND": "heatpumpLowPressure",
+                        "HD": "heatpumpHighPressure"
+                }
         }
 }
 ```
@@ -47,6 +80,6 @@ All not cached data is fetched from Solvis SC3 web head-end and afterwards all n
 
 
 # To-Dos
-- Extract the Solvis Sensor name to database name mapping to config file
 - Create and implement SQL security concept for both users
 - Explain datbase setup in more detail
+- Add unit-tests

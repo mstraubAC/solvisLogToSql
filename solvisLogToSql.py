@@ -5,6 +5,7 @@ import json
 from model.configuration import Configuration
 from accessors.postgresDatabaseAccessor import PostgresDatabaseAccessor
 from accessors.solvisAccessor import SolvisAccessor
+from businesslogic.pandasSolvisLog import PandasSolvisLog
 from businesslogic.pushNewSolvisLogsToDatabase import PushNewSolvisLogsToDatabase
 
 __version="0.2"
@@ -49,8 +50,9 @@ def main(config, verbosity):
         dumpConfigurationToLog(config)
 
     solvis = SolvisAccessor(config.solvis)
+    solvisLogToPandasConverterFactory = PandasSolvisLog(config.pandasSolvisLogConverter)
     with PostgresDatabaseAccessor(config.sql) as db:
-        businessLogic = PushNewSolvisLogsToDatabase(db, solvis)
+        businessLogic = PushNewSolvisLogsToDatabase(db, solvis, solvisLogToPandasConverterFactory)
         businessLogic.sync()
 
 if __name__ == "__main__":
