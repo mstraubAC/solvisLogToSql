@@ -127,7 +127,7 @@ class PandasSolvisLog:
         """ convert numeric columns and scale them """
         colUnits = {}
         for colName in dfHeaders.columns:
-            logging.debug("Parsing data in column '{}".format(colName))
+            self._log.debug("Parsing data in column '{}".format(colName))
             colUnitsRaw = dfHeaders.loc[0, colName]
             colScaler = re.findall(r'#([0-9]+([.][0-9]*)?|[.][0-9]+)#', colUnitsRaw)
             tmpUnits = re.findall(r'([a-zA-Z\d/%]+)#([0-9]+([.][0-9]*)?|[.][0-9]+)#', colUnitsRaw)
@@ -135,9 +135,9 @@ class PandasSolvisLog:
                 colUnits[colName] = tmpUnits[0][0]
             else:
                 colUnits[colName] = ""
-            logging.debug("column=" + colName + ", rawUnits=" + colUnitsRaw + ", colUnits=" + colUnits[colName])
+            self._log.debug("column=" + colName + ", rawUnits=" + colUnitsRaw + ", colUnits=" + colUnits[colName])
             if len(colScaler) != 1:
-                logging.error("found a list of column scalers, i.e. '%s', in this descriptor '%s'" % ( colScaler, colUnitsRaw, ))
+                self._log.error("found a list of column scalers, i.e. '%s', in this descriptor '%s'" % ( colScaler, colUnitsRaw, ))
                 break
             colScaler = float(colScaler[0][0])
 
@@ -168,8 +168,8 @@ class PandasSolvisLog:
         colUnits = { key: val for key, val in colUnits.items() if key not in colDrops }
         
         if len(colUnits) != len(dfLog.columns):
-            logging.error("column in units (%i) and data frame (%i) do not match" % ( len(colUnitsTarget), len(dfLogTarget.columns), ))
-            logging.debug({key for key in dfLogTarget.columns if key not in colUnitsTarget})
+            self._log.error("column in units (%i) and data frame (%i) do not match" % ( len(colUnitsTarget), len(dfLogTarget.columns), ))
+            self._log.debug({key for key in dfLogTarget.columns if key not in colUnitsTarget})
 
     def __processCsvToPandasDataFrame(self, inputData: IOBase):
         self._log.debug("Start processing of Solvis CSV data to Pandas Data frame")
