@@ -11,19 +11,26 @@ __version="0.2"
 __name="solvisLogToSql"
 
 def setupLogging(verbosity):
+    # format
+    loggerParameters = {
+        'format': '[%(asctime)s] [%(levelname)s] [%(name)s] (%(module)s %(funcName)s lno %(lineno)d): %(message)s'
+    }
+
     # set log level
     if not verbosity:
-        logging.basicConfig(level=logging.ERROR)
+        loggerParameters['level'] = logging.ERROR
     elif verbosity == 0:
-        logging.basicConfig(level=logging.ERROR)
+        loggerParameters['level'] = logging.ERROR
     elif verbosity == 1:
-        logging.basicConfig(level=logging.WARNING)
+        loggerParameters['level'] = logging.WARNING
     elif verbosity == 2:
-        logging.basicConfig(level=logging.INFO)
+        loggerParameters['level'] = logging.INFO
     elif verbosity >= 2:
-        logging.basicConfig(level=logging.DEBUG)
+        loggerParameters['level'] = logging.DEBUG
     else:
-        logging.critical("Invalid log level")
+        raise ValueError("Invalid log level")
+
+    logging.basicConfig(**loggerParameters)
 
 def dumpConfigurationToLog(config: Configuration):
     logging.debug("Solvis: http://{}:{}@{}:{}".format(config.solvis.user, 'xxx', config.solvis.host, config.solvis.port))
